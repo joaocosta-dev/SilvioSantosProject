@@ -1,33 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+// Css
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+//React
+import { useCallback, useEffect, useState } from 'react'
 
+//Data
+import { wordsList } from "./data/words.jsx"
+
+//Components
+import StartScreen from './components/StartScreen'
+import Game from './components/Game.jsx';
+import GameOver from './components/GameOver.jsx';
+
+const stages = [
+  { id: 1, name: "start" },
+  { id: 2, name: "game" },
+  { id: 3, name: "end" }
+];
+
+function App() {
+  const [gameStage, setGameStage] = useState(stages[0].name)
+  const [words] = useState(wordsList)
+
+  const [pickedWord, setPickedWord] = useState("")
+  const [pickedCategory, setPickedCategory] = useState("")
+  const [letters, setLetters] = useState([])
+
+
+  const pickWordAndCategory = () => {
+    //Escolhendo a categoria aleatória
+    const categories = Object.keys(words)
+    const category = categories[Math.floor(Math.random() * Object.keys(categories).length)]
+
+    //Escolhendo a palavra aleatória
+    const word = words[category][Math.floor(Math.random() * words[category].length)]
+  
+    return {word,category}
+  }
+
+  //Inicia o jogo
+  const startGame = () => {
+    //Escolhe uma palavra e uma categoria
+    
+
+    const {word, category} = pickWordAndCategory()
+    setGameStage(stages[1].name)
+  }
+
+  //Processa a letra que o usuário insere
+  const verifyLetter = () => {
+    setGameStage(stages[2].name)
+  }
+
+  const retry = () => {
+    setGameStage(stages[0].name)
+  }
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className='App'>
+        {gameStage === "start" && <StartScreen startGame={startGame} />}
+        {gameStage === "game" && <Game verifyLetter={verifyLetter} />}
+        {gameStage === "end" && <GameOver retry={retry} />}
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
     </>
   )
 }
